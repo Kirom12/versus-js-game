@@ -4,3 +4,20 @@
 
 	border: 2px solid black;
 }
+
+.passive-player button{
+	display: none;
+}
+.passive-player .alert-turn {
+	display: none;
+}
+
+.current-player {
+	border: 4px solid green;
+}
+
+.alert-turn {
+	text-align: center;
+	font-size: 1.2em;
+	margin-top: 30px;
+}

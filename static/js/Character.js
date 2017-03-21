@@ -1,7 +1,8 @@
 //Doc ES6: http://es6-features.org/#ClassDefinition
 
 class Character {
-	constructor(name) {
+	constructor(id, name) {
+		this.id = id;
 		this.name = name;
 
 		//Primary stats
@@ -22,11 +23,31 @@ class Character {
 		this.healKits = 3;
 	}
 
+	attack(target) {
+		let damages = this.des(8)+parseInt(this.modAttack);
+		console.log(this.name + " attacks " + target.name + " for " + damages + " hp");
+
+		target.takeDamage(damages);
+	}
+
+	takeDamage(damages) {
+		this.hp = this.hp-damages;
+	}
+
+	defense() {
+
+	}
+
+	heal() {
+		this.hp += this.des(8);
+		this.hp = (this.hp > this.maxHp) ? this.maxHp : this.hp;
+	}
+
 	/*
 	 *	Return a random value in a range
 	 */
 	randomValue(min = 6, max = 18) {
-		return Math.floor(Math.random() * (max-min)) + (min+1);
+		return Math.floor(Math.random() * (max-min)) + (min);
 	}
 
 	/*
