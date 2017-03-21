@@ -1,5 +1,5 @@
 .player-zone {
-	min-height: 500px;
+	min-height: 450px;
 	padding: 10px;
 
 	border: 2px solid black;
@@ -21,3 +21,19 @@
 	font-size: 1.2em;
 	margin-top: 30px;
 }
+
+#log {
+	height: 300px;
+
+	padding: 10px;
+	margin-top: 10px;
+	border: 2px solid black;
+
+	font-size: 1.2em;
+	word-wrap: break-word;
+	overflow: scroll;
+}
+
+.red-c {color: red;}
+.green-c {color: green;}
+.blue-c {color: blue;}

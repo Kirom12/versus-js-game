@@ -10,15 +10,8 @@ $(function() {
 		currentPlayerDiv = $("#player_"+currentPlayer.id);
 		passivePlayerDiv = $("#player_"+passivePlayer.id);
 
-		//console.log("Courant : " + currentPlayer.name);	
-		//console.log("Passif : " + passivePlayer.name);
-
-		//console.log(currentPlayerDiv);
-
-		currentPlayer.find(".progress-bar").html(passivePlayer.hp+"/"+passivePlayer.maxHp);
-		passivePlayer.find(".progress-bar").html(currentPlayer.hp+"/"+currentPlayer.maxHp);
-
-		
+		//Update player UI
+		updatePlayerUi()
 
 		//Higlight current player and disable buttons
 		passivePlayerDiv.removeClass("current-player");
@@ -27,16 +20,28 @@ $(function() {
 		currentPlayerDiv.addClass("current-player");
 
 		//Set Events
-		$(".action_attack").on("click", currentPlayer.attack(passivePlayer), endTurn);
-		$(".action_defense").on("click", currentPlayer.defense(), endTurn);
-		$(".action_heal").on("click", currentPlayer.heal(), endTurn);
+		$(".action_attack").on("click", function(){
+			log(currentPlayer.attack(passivePlayer));
+			endTurn();
+		});
+		$(".action_defense").on("click", function() {
+			log(currentPlayer.defensive());
+			endTurn();
+		});
+		$(".action_heal").on("click", function() {
+			log(currentPlayer.heal());
+			endTurn();
+		});
 	}
 
-	//Callback function
+	//Callback function, triggered after each turn
 	let endTurn = function() {
 		if (players[0].hp > 0 && players[1].hp > 0) {
-			updatePlayer();
 
+			//Remove defense bonus
+			passivePlayer.defense = 0;
+
+			//Switch players turn
 			tmp = currentPlayer;
 			currentPlayer = passivePlayer;
 			passivePlayer = tmp;
@@ -48,17 +53,28 @@ $(function() {
 
 			newTurn();
 		} else {
-
+			if (players[0].hp > 0) {
+				alert(players[0].name + " a gagné !");
+			} else {
+				alert(players[1].name + " a gagné !");
+			}
 		}
 	}
 
-	//Update player information (hp, ...)
-	let updatePlayer = function() {
-		console.log(currentPlayer.name + " : " + currentPlayer.hp);
-		console.log(passivePlayer.name + " : " + passivePlayer.hp);
+	//Update player UI before each turns
+	let updatePlayerUi = function() {
+		passivePlayerDiv.find(".progress-bar").html(passivePlayer.hp+"/"+passivePlayer.maxHp);
+		currentPlayerDiv.find(".progress-bar").html(currentPlayer.hp+"/"+currentPlayer.maxHp);
 
-		//refresh hp
+		passivePlayerDiv.find(".progress-bar").attr("style", "width:"+(passivePlayer.hp/passivePlayer.maxHp)*100+"%;");
+		currentPlayerDiv.find(".progress-bar").attr("style", "width:"+(currentPlayer.hp/currentPlayer.maxHp)*100+"%;");
 
+		passivePlayerDiv.find(".action_heal").html("Soin (heal kits : "+passivePlayer.healKits+")")
+	}
+
+	//Display all actions in log div
+	let log = function(message) {
+		$("#log").prepend(message + "<br>");
 	}
 
 	//Initialize board, display the two players
@@ -87,7 +103,7 @@ $(function() {
 
 				<h3>Actions</h3>
 				<div class="text-center button">
-					<button class="action_attack" class="btn btn-default" type="submit">Attaque !!1 (1d8`+players[i].modAttack+`)</button>
+					<button class="action_attack" class="btn btn-default" type="submit">Attaque ! (1d8`+players[i].modAttack+`)</button>
 					<button class="action_defense" class="btn btn-default" type="submit">Défense (+5)</button>
 					<button class="action_heal" class="btn btn-default" type="submit">Soin (heal kits : `+players[i].healKits+`)</button>
 				</div>
@@ -104,7 +120,6 @@ $(function() {
 	if (players[0].intelligence >= players[1].intelligence) {
 		currentPlayer = players[0];
 		passivePlayer = players[1];
-
 	} else {
 		currentPlayer = players[1];
 		passivePlayer = players[0];
@@ -112,5 +127,4 @@ $(function() {
 
 	//Set first turn
 	newTurn();
-
 });

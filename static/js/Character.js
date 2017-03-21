@@ -18,29 +18,63 @@ class Character {
 		this.modConst = this.getModifier(this.constitution);
 		this.modIntell = this.getModifier(this.intelligence);
 		this.modWisdom = this.getModifier(this.wisdom);
+		this.defense = 0;
 
 		//Items
 		this.healKits = 3;
 	}
 
+	/*
+	 *	Attack a character with 1d8 + strength mod
+	 *
+	 *	@param Character target character
+	 *	@return String log line
+	 */
 	attack(target) {
 		let damages = this.des(8)+parseInt(this.modAttack);
-		console.log(this.name + " attacks " + target.name + " for " + damages + " hp");
+		target.takeDamage(damages)
 
-		target.takeDamage(damages);
+		return "<i>" + this.name + "</i> inflige <span class=\"red-c\">" + damages + " hp</span> <span class=\"blue-c\">(" + target.defense + " Def)</span> à <i>" + target.name + "</i>";
 	}
 
+	/*
+	 *	Take damage
+	 *
+	 *	@param int damages taken
+	 */
 	takeDamage(damages) {
-		this.hp = this.hp-damages;
+		if (damages > this.defense) {
+			this.hp -= (damages-this.defense);
+		}
 	}
 
-	defense() {
 
+ 	/*
+ 	 *	Give reduction damage to current player (1 turn)
+ 	 *
+ 	 *	@return String log line
+ 	 */	
+	defensive() {
+		this.defense = 5;
+
+		return "<i>" + this.name + "</i> gagne <span class=\"blue-c\">+5 défense</span> (1 tour)";
 	}
 
+	/*
+	 *	Heal current character of 1d8 + wisdom mod
+	 *
+	 *	@return String log line
+	 */
 	heal() {
-		this.hp += this.des(8);
-		this.hp = (this.hp > this.maxHp) ? this.maxHp : this.hp;
+		if (this.healKits > 0) {
+			let heal = this.des(8)+parseInt(this.modWisdom);
+			this.hp += heal;
+			this.hp = (this.hp > this.maxHp) ? this.maxHp : this.hp;
+			this.healKits--;
+			return "<i>" + this.name + "</i> gagne <span class=\"green-c\">" + heal + " hp</span>";
+		}
+
+		return "<i>" + this.name + "</i> n'a plus de médikits";
 	}
 
 	/*
@@ -57,7 +91,12 @@ class Character {
 		return Math.round(Math.random()*(value - 1)+1);
 	}
 
-
+	/*
+	 *	Find the modifier of a stat
+	 *	
+	 *	@param int stat value
+	 *	@return String modifiers (-3 to +3)
+	 */
 	getModifier(baseValue) {
 		if (baseValue > 17) {
 			return "+3";
