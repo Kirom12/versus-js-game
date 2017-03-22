@@ -116,12 +116,14 @@ class Character {
 	}
 
 	toString() {
-		console.log("strength : " + this.strength);
+		console.log("Name : " + this.name);
+
+		console.log("Strength : " + this.strength);
 		console.log("Constitution : " + this.constitution);
 		console.log("Intelligence : " + this.intelligence);
 		console.log("Wisdom : " + this.wisdom);
 
 		console.log("Hp : " + this.hp);
-		console.log("Attack : " + this.attack);
+		console.log("Attack : " + this.modAttack);
 	}
 }

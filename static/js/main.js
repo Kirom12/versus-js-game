@@ -1,11 +1,16 @@
 $(function() {
 
 	const Game = {
-		players: [new Character(0, "Régis le juste"), new Character(1, "Robert le fourbe")],
+		players: [],
 		contentDiv: $("#content"),
 		currentPlayer: null, passivePlayer: null,
+		solo: false,
 
 		init() {
+
+			//Init character or ia
+			this.createCharacter();
+
 			//Initialize board, display the two players
 			for (let i in this.players) {
 				let playerCard = `
@@ -45,17 +50,47 @@ $(function() {
 				//players[i].toString();
 			}
 
-			//Use intell for initiative
-			if (this.players[0].intelligence >= this.players[1].intelligence) {
-				this.currentPlayer = this.players[0];
-				this.passivePlayer = this.players[1];
-			} else {
-				this.currentPlayer = this.players[1];
-				this.passivePlayer = this.players[0];
-			}
-
 			//Set first turn
 			this.newTurn();
+		},
+
+		setBaseUi() {
+			var _this = this;
+
+			$("#mode_selector").on("click", function() {
+				if (_this.solo) {
+					_this.solo = false;
+					$(this).html("Solo");
+					$("h1").html("Versus Multi");
+				} else {
+					_this.solo = true;
+					$(this).html("Multi");
+					$("h1").html("Versus Solo");
+				}
+
+
+				$(_this.contentDiv).empty();
+				_this.init();
+			});
+		},
+
+		createCharacter() {
+			if (this.solo) {
+				this.players[0] = new Character(0, "Régis le juste");
+				this.players[1] = new IaOpponent(1, "Méchante IA");
+			} else {
+				this.players[0] = new Character(0, "Régis le juste");
+				this.players[1] = new Character(1, "Robert le fourbe");
+			}
+
+			//Set initiative, Use intell for initiative
+			if ((this.players[0].intelligence <= this.players[1].intelligence) && !this.solo) {
+				this.currentPlayer = this.players[1];
+				this.passivePlayer = this.players[0];
+			} else {
+				this.currentPlayer = this.players[0];
+				this.passivePlayer = this.players[1];
+			}
 		},
 
 		newTurn() {
@@ -130,5 +165,6 @@ $(function() {
 		}
 	}
 
+	Game.setBaseUi();
 	Game.init();
 });
