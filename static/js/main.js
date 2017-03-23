@@ -152,12 +152,12 @@ $(function() {
 
 				if (this.solo) {
 					
-				}
-
-				if (this.players[0].hp > 0) {
-					log(this.players[0].name + " a gagné !");
 				} else {
-					log(this.players[1].name + " a gagné !");
+					if (this.players[0].hp > 0) {
+						log(this.players[0].name + " a gagné !");
+					} else {
+						log(this.players[1].name + " a gagné !");
+					}
 				}
 			}
 		},
