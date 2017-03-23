@@ -7,7 +7,6 @@ $(function() {
 		solo: false,
 
 		init() {
-
 			//Init character or ia
 			this.createCharacter();
 
@@ -103,24 +102,33 @@ $(function() {
 			//Higlight current player and disable buttons
 			passivePlayerDiv.removeClass("current-player");
 			passivePlayerDiv.addClass("passive-player");
-			currentPlayerDiv.removeClass("passive-player");
-			currentPlayerDiv.addClass("current-player");
 
 			var _this = this;
 
-			//Set Events
-			$(".action_attack").on("click", function(){
-				_this.log(_this.currentPlayer.attack(_this.passivePlayer));
-				_this.endTurn();
-			});
-			$(".action_defense").on("click", function() {
-				_this.log(_this.currentPlayer.defensive());
-				_this.endTurn();
-			});
-			$(".action_heal").on("click", function() {
-				_this.log(_this.currentPlayer.heal());
-				_this.endTurn();
-			});
+			//If solo mode, ia automatic turn
+			if (this.solo && this.currentPlayer.id === 1) {
+				setTimeout(function() {
+					_this.log(_this.currentPlayer.selectAction(_this.passivePlayer));
+					_this.endTurn();
+				}, 1000)
+			} else {
+				currentPlayerDiv.removeClass("passive-player");
+				currentPlayerDiv.addClass("current-player");
+
+				//Set Events
+				$(".action_attack").on("click", function(){
+					_this.log(_this.currentPlayer.attack(_this.passivePlayer));
+					_this.endTurn();
+				});
+				$(".action_defense").on("click", function() {
+					_this.log(_this.currentPlayer.defensive());
+					_this.endTurn();
+				});
+				$(".action_heal").on("click", function() {
+					_this.log(_this.currentPlayer.heal());
+					_this.endTurn();
+				});
+			}
 		},
 
 		endTurn() {
@@ -141,10 +149,15 @@ $(function() {
 
 				this.newTurn();
 			} else {
+
+				if (this.solo) {
+					
+				}
+
 				if (this.players[0].hp > 0) {
-					alert(this.players[0].name + " a gagné !");
+					log(this.players[0].name + " a gagné !");
 				} else {
-					alert(this.players[1].name + " a gagné !");
+					log(this.players[1].name + " a gagné !");
 				}
 			}
 		},
