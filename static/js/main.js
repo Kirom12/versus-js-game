@@ -4,7 +4,9 @@ $(function() {
 		players: [],
 		contentDiv: $("#content"),
 		currentPlayer: null, passivePlayer: null,
+		currentPlayerDiv: null, passivePlayerDiv: null,
 		solo: false,
+		firstIa: true,
 
 		init() {
 			//Init character or ia
@@ -39,6 +41,7 @@ $(function() {
 							<button class="action_attack" class="btn btn-default" type="submit">Attaque ! (1d8`+this.players[i].modAttack+`)</button>
 							<button class="action_defense" class="btn btn-default" type="submit">Défense (+5)</button>
 							<button class="action_heal" class="btn btn-default" type="submit">Soin (heal kits : `+this.players[i].healKits+`)</button>
+							<button class="action_ulti" class="btn btn-default" type="submit">?</button>
 						</div>
 						<div class="alert-turn">Votre tour !</div>
 					</div>
@@ -75,33 +78,40 @@ $(function() {
 
 		createCharacter() {
 			if (this.solo) {
-				this.players[0] = new Character(0, "Régis le juste");
+				if (this.firstIa) {
+					this.players[0] = new MainCharacter(0, "Régis le juste");	
+				}
 				this.players[1] = new IaOpponent(1, "Méchante IA");
 			} else {
-				this.players[0] = new Character(0, "Régis le juste");
-				this.players[1] = new Character(1, "Robert le fourbe");
+				this.players[0] = new MainCharacter(0, "Régis le juste");
+				this.players[1] = new MainCharacter(1, "Robert le fourbe");
 			}
 
 			//Set initiative, Use intell for initiative
-			if ((this.players[0].intelligence <= this.players[1].intelligence) && !this.solo) {
-				this.currentPlayer = this.players[1];
-				this.passivePlayer = this.players[0];
-			} else {
-				this.currentPlayer = this.players[0];
-				this.passivePlayer = this.players[1];
+			if (this.firstIa) {
+				if ((this.players[0].intelligence <= this.players[1].intelligence) && !this.solo) {
+					this.currentPlayer = this.players[1];
+					this.passivePlayer = this.players[0];
+				} else {
+					this.currentPlayer = this.players[0];
+					this.passivePlayer = this.players[1];
+				}
 			}
 		},
 
 		newTurn() {
-			let currentPlayerDiv = $("#player_"+this.currentPlayer.id);
-			let passivePlayerDiv = $("#player_"+this.passivePlayer.id);
+
+			//REFACTOR THIS SHIT !
+			this.currentPlayerDiv = $("#player_"+this.currentPlayer.id);
+			this.passivePlayerDiv = $("#player_"+this.passivePlayer.id);
+			//****
 
 			//Update player UI
-			this.updatePlayerUi(currentPlayerDiv, passivePlayerDiv);
+			this.updatePlayerUi(this.currentPlayerDiv, this.passivePlayerDiv);
 
 			//Higlight current player and disable buttons
-			passivePlayerDiv.removeClass("current-player");
-			passivePlayerDiv.addClass("passive-player");
+			this.passivePlayerDiv.removeClass("current-player");
+			this.passivePlayerDiv.addClass("passive-player");
 
 			var _this = this;
 
@@ -112,12 +122,16 @@ $(function() {
 					_this.endTurn();
 				}, 1000)
 			} else {
-				currentPlayerDiv.removeClass("passive-player");
-				currentPlayerDiv.addClass("current-player");
+				this.currentPlayerDiv.removeClass("passive-player");
+				this.currentPlayerDiv.addClass("current-player");
 
 				//Set Events
 				$(".action_attack").on("click", function(){
 					_this.log(_this.currentPlayer.attack(_this.passivePlayer));
+					_this.endTurn();
+				});
+				$(".action_ulti").on("click", function(){
+					_this.log(_this.currentPlayer.attackUlti(_this.passivePlayer));
 					_this.endTurn();
 				});
 				$(".action_defense").on("click", function() {
@@ -144,6 +158,7 @@ $(function() {
 
 				//Disable click actions
 				$(".action_attack").off("click");
+				$(".attack_ulti").off("click");
 				$(".action_defense").off("click");
 				$(".action_heal").off("click");
 
@@ -151,7 +166,14 @@ $(function() {
 			} else {
 
 				if (this.solo) {
-					
+					if (this.currentPlayer.id == 0) {
+						this.log("Vous avez vaincu une IA !");
+
+						this.replaceIa();
+					} else {
+						this.log("Vous avez perdu !");
+					}
+					this.updatePlayerUi(this.currentPlayerDiv, this.passivePlayerDiv);
 				} else {
 					if (this.players[0].hp > 0) {
 						log(this.players[0].name + " a gagné !");
@@ -160,6 +182,13 @@ $(function() {
 					}
 				}
 			}
+		},
+
+		replaceIa() {
+			this.firstIa = false;
+
+			this.init();
+			this.updatePlayerUi(this.currentPlayerDiv, this.passivePlayerDiv);
 		},
 
 		updatePlayerUi(currentPlayerDiv, passivePlayerDiv) {

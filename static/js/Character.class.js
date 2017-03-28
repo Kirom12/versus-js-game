@@ -22,6 +22,9 @@ class Character {
 
 		//Items
 		this.healKits = 3;
+
+		//Utilities
+		this.history = [];
 	}
 
 	/*
@@ -32,7 +35,9 @@ class Character {
 	 */
 	attack(target) {
 		let damages = this.des(8)+parseInt(this.modAttack);
-		target.takeDamage(damages)
+		target.takeDamage(damages);
+
+		this.saveActionInHistory("attack");
 
 		return "<i>" + this.name + "</i> inflige <span class=\"red-c\">" + damages + " hp</span> <span class=\"blue-c\">(" + target.defense + " Def)</span> à <i>" + target.name + "</i>";
 	}
@@ -48,7 +53,6 @@ class Character {
 		}
 	}
 
-
  	/*
  	 *	Give reduction damage to current player (1 turn)
  	 *
@@ -56,6 +60,8 @@ class Character {
  	 */	
 	defensive() {
 		this.defense = 5;
+
+		this.saveActionInHistory("defensive");
 
 		return "<i>" + this.name + "</i> gagne <span class=\"blue-c\">+5 défense</span> (1 tour)";
 	}
@@ -66,6 +72,8 @@ class Character {
 	 *	@return String log line
 	 */
 	heal() {
+		this.saveActionInHistory("heal");
+
 		if (this.healKits > 0) {
 			let heal = this.des(8)+parseInt(this.modWisdom);
 			this.hp += heal;
@@ -75,6 +83,22 @@ class Character {
 		}
 
 		return "<i>" + this.name + "</i> n'a plus de médikits";
+	}
+
+	/*
+	 *	Save action in history with size limitation
+	 *
+	 *	@param String class name
+	 */
+	saveActionInHistory(action) {
+		this.history.push(action);
+
+		if (this.history.length > 10) {
+			this.history.shift();
+		}
+
+		console.log(this.name);
+		console.log(this.history);
 	}
 
 	/*
